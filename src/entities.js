@@ -77,6 +77,54 @@ function collideBallPaddle(ball, paddle) {
   return true;
 }
 
+function createBricks() {
+  const { cols, rows, w, h, gap, offsetX, offsetY, colors } = CONFIG.BRICKS;
+  const bricks = [];
+  for (let r = 0; r < rows; r++) {
+    for (let c = 0; c < cols; c++) {
+      bricks.push({
+        x: offsetX + c * (w + gap),
+        y: offsetY + r * (h + gap),
+        w,
+        h,
+        color: colors[r],
+        alive: true,
+      });
+    }
+  }
+  return bricks;
+}
+
+function drawBricks(ctx, bricks) {
+  for (const b of bricks) {
+    if (b.alive) drawSprite(ctx, `block_${b.color}`, b.x, b.y, b.w, b.h);
+  }
+}
+
+// Rebota la bola en el primer bloque vivo que solape (por el eje de menor
+// penetración), lo marca como roto y lo devuelve. Devuelve null si no hay golpe.
+function collideBallBricks(ball, bricks) {
+  for (const b of bricks) {
+    if (!b.alive) continue;
+    const overlapX = Math.min(ball.x + ball.size - b.x, b.x + b.w - ball.x);
+    const overlapY = Math.min(ball.y + ball.size - b.y, b.y + b.h - ball.y);
+    if (overlapX <= 0 || overlapY <= 0) continue;
+
+    if (overlapX < overlapY) {
+      const fromLeft = ball.x + ball.size / 2 < b.x + b.w / 2;
+      ball.x += fromLeft ? -overlapX : overlapX;
+      ball.vx = fromLeft ? -Math.abs(ball.vx) : Math.abs(ball.vx);
+    } else {
+      const fromTop = ball.y + ball.size / 2 < b.y + b.h / 2;
+      ball.y += fromTop ? -overlapY : overlapY;
+      ball.vy = fromTop ? -Math.abs(ball.vy) : Math.abs(ball.vy);
+    }
+    b.alive = false;
+    return b;
+  }
+  return null;
+}
+
 function drawBall(ctx, ball) {
   drawSprite(ctx, 'ball', ball.x, ball.y, ball.size, ball.size);
 }
