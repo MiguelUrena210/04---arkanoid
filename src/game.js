@@ -6,17 +6,32 @@ const state = {
   score: 0,
   lives: CONFIG.LIVES,
   paddle: createPaddle(),
+  ball: createBall(),
 };
+
+attachBall(state.ball, state.paddle);
 
 const MAX_DT = 1 / 30;
 let lastTime = 0;
 
 function update(dt) {
-  if (state.mode === 'menu' && pressed.has('Space')) {
-    state.mode = 'ready';
+  if (state.mode === 'menu') {
+    if (pressed.has('Space')) state.mode = 'ready';
+    clearPressed();
+    return;
   }
   if (state.mode === 'ready' || state.mode === 'playing') {
     updatePaddle(state.paddle, dt);
+  }
+  if (state.mode === 'ready') {
+    attachBall(state.ball, state.paddle);
+    if (pressed.has('Space')) {
+      launchBall(state.ball);
+      state.mode = 'playing';
+    }
+  } else if (state.mode === 'playing') {
+    updateBall(state.ball, dt);
+    collideBallPaddle(state.ball, state.paddle);
   }
   clearPressed();
 }
@@ -36,7 +51,10 @@ function drawMenu() {
 function draw() {
   ctx.clearRect(0, 0, CONFIG.WIDTH, CONFIG.HEIGHT);
   if (state.mode === 'menu') drawMenu();
-  if (state.mode === 'ready' || state.mode === 'playing') drawPaddle(ctx, state.paddle);
+  if (state.mode === 'ready' || state.mode === 'playing') {
+    drawPaddle(ctx, state.paddle);
+    drawBall(ctx, state.ball);
+  }
 }
 
 function loop(time) {
