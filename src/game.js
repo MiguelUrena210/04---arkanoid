@@ -5,13 +5,20 @@ const state = {
   mode: 'menu', // 'menu' | 'ready' | 'playing' | 'paused' | 'gameover' | 'won'
   score: 0,
   lives: CONFIG.LIVES,
+  paddle: createPaddle(),
 };
 
 const MAX_DT = 1 / 30;
 let lastTime = 0;
 
 function update(dt) {
-  // Se completa en pasos siguientes.
+  if (state.mode === 'menu' && pressed.has('Space')) {
+    state.mode = 'ready';
+  }
+  if (state.mode === 'ready' || state.mode === 'playing') {
+    updatePaddle(state.paddle, dt);
+  }
+  clearPressed();
 }
 
 function drawCenteredText(text, y, size) {
@@ -29,6 +36,7 @@ function drawMenu() {
 function draw() {
   ctx.clearRect(0, 0, CONFIG.WIDTH, CONFIG.HEIGHT);
   if (state.mode === 'menu') drawMenu();
+  if (state.mode === 'ready' || state.mode === 'playing') drawPaddle(ctx, state.paddle);
 }
 
 function loop(time) {
