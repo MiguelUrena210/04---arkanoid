@@ -8,9 +8,31 @@ const state = {
   paddle: createPaddle(),
   ball: createBall(),
   bricks: createBricks(),
+  explosions: [], // { x, y, w, h, color, t } con t en ms
 };
 
 attachBall(state.ball, state.paddle);
+
+const bounceSound = new Audio('assets/sounds/ball-bounce.mp3');
+const breakSound = new Audio('assets/sounds/break-sound.mp3');
+
+// Clona el audio para permitir solapamiento; ignora el rechazo de autoplay.
+function playSound(sound) {
+  sound.cloneNode().play().catch(() => {});
+}
+
+function updateExplosions(dt) {
+  for (const e of state.explosions) e.t += dt * 1000;
+  state.explosions = state.explosions.filter((e) => e.t < EXPLOSION_DURATION);
+}
+
+function drawExplosions() {
+  for (const e of state.explosions) {
+    const frames = EXPLOSION_FRAMES[e.color];
+    const i = Math.min(frames.length - 1, Math.floor((e.t / EXPLOSION_DURATION) * frames.length));
+    drawFrame(ctx, frames[i], e.x, e.y, e.w, e.h);
+  }
+}
 
 const MAX_DT = 1 / 30;
 let lastTime = 0;
@@ -20,6 +42,7 @@ function resetGame() {
   state.lives = CONFIG.LIVES;
   state.bricks = createBricks();
   state.paddle = createPaddle();
+  state.explosions = [];
   attachBall(state.ball, state.paddle);
 }
 
@@ -29,6 +52,7 @@ function update(dt) {
     clearPressed();
     return;
   }
+  if (state.mode !== 'paused') updateExplosions(dt);
   if (state.mode === 'gameover' || state.mode === 'won') {
     if (pressed.has('Space')) {
       resetGame();
@@ -55,10 +79,14 @@ function update(dt) {
       state.mode = 'playing';
     }
   } else if (state.mode === 'playing') {
-    updateBall(state.ball, dt);
-    collideBallPaddle(state.ball, state.paddle);
-    if (collideBallBricks(state.ball, state.bricks)) {
+    const hitWall = updateBall(state.ball, dt);
+    const hitPaddle = collideBallPaddle(state.ball, state.paddle);
+    const brick = collideBallBricks(state.ball, state.bricks);
+    if (hitWall || hitPaddle || brick) playSound(bounceSound);
+    if (brick) {
       state.score += CONFIG.POINTS_PER_BRICK;
+      state.explosions.push({ x: brick.x, y: brick.y, w: brick.w, h: brick.h, color: brick.color, t: 0 });
+      playSound(breakSound);
     }
     if (!state.bricks.some((b) => b.alive)) {
       state.mode = 'won';
@@ -123,6 +151,7 @@ function draw() {
     return;
   }
   drawBricks(ctx, state.bricks);
+  drawExplosions();
   drawPaddle(ctx, state.paddle);
   drawBall(ctx, state.ball);
   drawHud();
