@@ -112,9 +112,33 @@ function createBricks(level) {
   return bricks;
 }
 
+// Tono y grietas del gray según hp restante, encima del sprite.
+function drawGrayDamage(ctx, b) {
+  const look = CONFIG.GRAY_LOOK[b.hp];
+  if (!look) return;
+  if (look.tint) {
+    ctx.fillStyle = look.tint;
+    ctx.fillRect(b.x, b.y, b.w, b.h);
+  }
+  ctx.strokeStyle = CONFIG.CRACKS.color;
+  ctx.lineWidth = CONFIG.CRACKS.width;
+  for (const line of CONFIG.CRACKS.lines.slice(0, look.cracks)) {
+    ctx.beginPath();
+    line.forEach(([fx, fy], i) => {
+      const x = b.x + fx * b.w;
+      const y = b.y + fy * b.h;
+      if (i === 0) ctx.moveTo(x, y);
+      else ctx.lineTo(x, y);
+    });
+    ctx.stroke();
+  }
+}
+
 function drawBricks(ctx, bricks) {
   for (const b of bricks) {
-    if (b.alive) drawSprite(ctx, `block_${b.color}`, b.x, b.y, b.w, b.h);
+    if (!b.alive) continue;
+    drawSprite(ctx, `block_${b.color}`, b.x, b.y, b.w, b.h);
+    if (b.color === 'gray') drawGrayDamage(ctx, b);
   }
 }
 
