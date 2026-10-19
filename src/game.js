@@ -65,24 +65,26 @@ function closeMenu() {
   state.mode = state.menu.from;
 }
 
-// Menú en partida: Continuar / Reiniciar nivel / Seleccionar nivel.
-function updateOptions() {
+// Menú de inicio (mode 'menu') y menú en partida (mode 'options'): mismas pantallas
+// 'main' y 'levels'. Opciones de 'main': Empezar / Continuar / Reiniciar nivel / Seleccionar nivel.
+function updateMenu() {
   const items = menuItems(state.menu, state.mode);
   const action = updateMenuNav(state.menu, items.length);
   if (state.menu.screen === 'levels') {
     if (action === 'back') {
       state.menu.screen = 'main';
-      state.menu.index = MENU_GAME.indexOf('Seleccionar nivel');
+      state.menu.index = menuItems(state.menu, state.mode).indexOf('Seleccionar nivel');
     } else if (action === 'confirm') {
       startGame(state.menu.index);
     }
     return;
   }
   if (action === 'back') {
-    closeMenu();
+    if (state.mode === 'options') closeMenu();
   } else if (action === 'confirm') {
     const item = items[state.menu.index];
-    if (item === 'Continuar') closeMenu();
+    if (item === 'Empezar') startGame(0);
+    else if (item === 'Continuar') closeMenu();
     else if (item === 'Reiniciar nivel') startGame(state.level);
     else if (item === 'Seleccionar nivel') {
       state.menu.screen = 'levels';
@@ -102,12 +104,13 @@ function startNextLevel() {
 
 function update(dt) {
   if (state.mode === 'menu') {
-    if (pressed.has('Space')) state.mode = 'ready';
+    if (pressed.has('Space') && state.menu.screen === 'main') startGame(0);
+    else updateMenu();
     clearPressed();
     return;
   }
   if (state.mode === 'options') {
-    updateOptions();
+    updateMenu();
     clearPressed();
     return;
   }
@@ -177,11 +180,14 @@ function drawCenteredText(text, y, size) {
   ctx.fillText(text, CONFIG.WIDTH / 2, y);
 }
 
+// Menú de inicio y menú en partida comparten pantallas y dibujo.
 function drawMenu() {
-  ctx.fillStyle = '#fff';
-  ctx.textAlign = 'center';
-  drawCenteredText('ARKANOID', CONFIG.HEIGHT / 2 - 20, 56);
-  drawCenteredText('Espacio para empezar', CONFIG.HEIGHT / 2 + 30, 22);
+  const start = state.mode === 'menu';
+  const levels = state.menu.screen === 'levels';
+  let hint = '↑↓ mover · Enter elegir · Esc cerrar';
+  if (levels) hint = '↑↓ mover · Enter empezar · Esc volver';
+  else if (start) hint = '↑↓ mover · Enter elegir · Espacio para empezar';
+  drawMenuList(ctx, levels ? 'NIVELES' : start ? 'ARKANOID' : 'MENÚ', menuItems(state.menu, state.mode), state.menu.index, hint);
 }
 
 function drawHud() {
@@ -233,16 +239,7 @@ function draw() {
   drawBall(ctx, state.ball);
   drawHud();
   drawStateText();
-  if (state.mode === 'options') {
-    const levels = state.menu.screen === 'levels';
-    drawMenuList(
-      ctx,
-      levels ? 'NIVELES' : 'MENÚ',
-      menuItems(state.menu, state.mode),
-      state.menu.index,
-      levels ? '↑↓ mover · Enter empezar · Esc volver' : '↑↓ mover · Enter elegir · Esc cerrar',
-    );
-  }
+  if (state.mode === 'options') drawMenu();
 }
 
 function loop(time) {
