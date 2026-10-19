@@ -38,14 +38,20 @@ function drawExplosions() {
 const MAX_DT = 1 / 30;
 let lastTime = 0;
 
-function resetGame() {
+// Único punto de arranque: partida limpia en el nivel indicado (0-based).
+function startGame(levelIndex) {
   state.score = 0;
   state.lives = CONFIG.LIVES;
-  state.level = 0;
+  state.level = levelIndex;
   state.bricks = createBricks(state.level);
   state.paddle = createPaddle();
   state.explosions = [];
   attachBall(state.ball, state.paddle);
+  state.mode = 'ready';
+}
+
+function resetGame() {
+  startGame(0);
 }
 
 // Carga el siguiente nivel; puntaje y vidas se conservan.
