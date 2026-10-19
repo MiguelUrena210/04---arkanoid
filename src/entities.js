@@ -47,8 +47,8 @@ function updateBall(ball, dt) {
     ball.vx = -Math.abs(ball.vx);
     bounced = true;
   }
-  if (ball.y < 0) {
-    ball.y = 0;
+  if (ball.y < CONFIG.HUD_HEIGHT) {
+    ball.y = CONFIG.HUD_HEIGHT;
     ball.vy = Math.abs(ball.vy);
     bounced = true;
   }

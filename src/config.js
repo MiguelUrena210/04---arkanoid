@@ -1,6 +1,7 @@
 const CONFIG = {
   WIDTH: 800,
   HEIGHT: 600,
+  HUD_HEIGHT: 56, // franja superior del HUD; la bola rebota por debajo de ella
   PADDLE: { w: 100, h: 20, speed: 520, y: 560 }, // px/s
   BALL: { size: 14, speed: 380, maxAngle: 60 },  // px/s, grados desde la vertical
   BRICKS: {
