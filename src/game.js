@@ -139,6 +139,7 @@ function drawHud() {
   ctx.textAlign = 'right';
   ctx.fillText(`Vidas: ${state.lives}`, CONFIG.WIDTH - 32, 40);
   ctx.textAlign = 'center';
+  ctx.fillText(`Nivel ${state.level + 1}`, CONFIG.WIDTH / 2, 40);
 }
 
 const STATE_TEXTS = {
