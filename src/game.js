@@ -69,12 +69,25 @@ function closeMenu() {
 function updateOptions() {
   const items = menuItems(state.menu, state.mode);
   const action = updateMenuNav(state.menu, items.length);
+  if (state.menu.screen === 'levels') {
+    if (action === 'back') {
+      state.menu.screen = 'main';
+      state.menu.index = MENU_GAME.indexOf('Seleccionar nivel');
+    } else if (action === 'confirm') {
+      startGame(state.menu.index);
+    }
+    return;
+  }
   if (action === 'back') {
     closeMenu();
   } else if (action === 'confirm') {
     const item = items[state.menu.index];
     if (item === 'Continuar') closeMenu();
     else if (item === 'Reiniciar nivel') startGame(state.level);
+    else if (item === 'Seleccionar nivel') {
+      state.menu.screen = 'levels';
+      state.menu.index = state.level;
+    }
   }
 }
 
@@ -221,7 +234,14 @@ function draw() {
   drawHud();
   drawStateText();
   if (state.mode === 'options') {
-    drawMenuList(ctx, 'MENÚ', menuItems(state.menu, state.mode), state.menu.index, '↑↓ mover · Enter elegir · Esc cerrar');
+    const levels = state.menu.screen === 'levels';
+    drawMenuList(
+      ctx,
+      levels ? 'NIVELES' : 'MENÚ',
+      menuItems(state.menu, state.mode),
+      state.menu.index,
+      levels ? '↑↓ mover · Enter empezar · Esc volver' : '↑↓ mover · Enter elegir · Esc cerrar',
+    );
   }
 }
 
