@@ -2,7 +2,7 @@ const canvas = document.getElementById('game');
 const ctx = canvas.getContext('2d');
 
 const state = {
-  mode: 'menu', // 'menu' | 'ready' | 'playing' | 'paused' | 'gameover' | 'won'
+  mode: 'menu', // 'menu' | 'ready' | 'playing' | 'paused' | 'levelclear' | 'gameover' | 'won'
   score: 0,
   lives: CONFIG.LIVES,
   paddle: createPaddle(),
@@ -48,6 +48,15 @@ function resetGame() {
   attachBall(state.ball, state.paddle);
 }
 
+// Carga el siguiente nivel; puntaje y vidas se conservan.
+function startNextLevel() {
+  state.level++;
+  state.bricks = createBricks(state.level);
+  state.paddle = createPaddle();
+  state.explosions = [];
+  attachBall(state.ball, state.paddle);
+}
+
 function update(dt) {
   if (state.mode === 'menu') {
     if (pressed.has('Space')) state.mode = 'ready';
@@ -58,6 +67,14 @@ function update(dt) {
   if (state.mode === 'gameover' || state.mode === 'won') {
     if (pressed.has('Space')) {
       resetGame();
+      state.mode = 'ready';
+    }
+    clearPressed();
+    return;
+  }
+  if (state.mode === 'levelclear') {
+    if (pressed.has('Space')) {
+      startNextLevel();
       state.mode = 'ready';
     }
     clearPressed();
@@ -93,7 +110,7 @@ function update(dt) {
       playSound(breakSound);
     }
     if (!state.bricks.some((b) => b.alive)) {
-      state.mode = 'won';
+      state.mode = state.level < LEVELS.length - 1 ? 'levelclear' : 'won';
     } else if (state.ball.y > CONFIG.HEIGHT) {
       state.lives--;
       state.mode = state.lives === 0 ? 'gameover' : 'ready';
@@ -132,7 +149,9 @@ const STATE_TEXTS = {
 };
 
 function drawStateText() {
-  const lines = STATE_TEXTS[state.mode];
+  const lines = state.mode === 'levelclear'
+    ? [`Nivel ${state.level + 1} completado`, 'Espacio para continuar']
+    : STATE_TEXTS[state.mode];
   if (!lines) return;
   if (state.mode !== 'ready') {
     ctx.fillStyle = 'rgba(0, 0, 0, 0.6)';
