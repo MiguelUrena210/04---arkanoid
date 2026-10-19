@@ -10,4 +10,5 @@ const CONFIG = {
   },
   LIVES: 3,
   POINTS_PER_BRICK: 10,
+  POINTS_PER_HIT_GRAY: 10, // por golpe de hp: un gray de N golpes suma 10 * N
 };

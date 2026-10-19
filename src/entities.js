@@ -119,7 +119,8 @@ function drawBricks(ctx, bricks) {
 }
 
 // Rebota la bola en el primer bloque vivo que solape (por el eje de menor
-// penetración), lo marca como roto y lo devuelve. Devuelve null si no hay golpe.
+// penetración), le resta 1 de hp (alive = false con hp 0) y lo devuelve.
+// Devuelve null si no hay golpe.
 function collideBallBricks(ball, bricks) {
   for (const b of bricks) {
     if (!b.alive) continue;
@@ -136,7 +137,8 @@ function collideBallBricks(ball, bricks) {
       ball.y += fromTop ? -overlapY : overlapY;
       ball.vy = fromTop ? -Math.abs(ball.vy) : Math.abs(ball.vy);
     }
-    b.alive = false;
+    b.hp--;
+    if (b.hp <= 0) b.alive = false;
     return b;
   }
   return null;

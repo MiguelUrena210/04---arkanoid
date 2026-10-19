@@ -85,8 +85,10 @@ function update(dt) {
     const hitPaddle = collideBallPaddle(state.ball, state.paddle);
     const brick = collideBallBricks(state.ball, state.bricks);
     if (hitWall || hitPaddle || brick) playSound(bounceSound);
-    if (brick) {
-      state.score += CONFIG.POINTS_PER_BRICK;
+    if (brick && !brick.alive) {
+      state.score += brick.color === 'gray'
+        ? CONFIG.POINTS_PER_HIT_GRAY * brick.maxHp
+        : CONFIG.POINTS_PER_BRICK;
       state.explosions.push({ x: brick.x, y: brick.y, w: brick.w, h: brick.h, color: brick.color, t: 0 });
       playSound(breakSound);
     }
