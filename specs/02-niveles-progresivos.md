@@ -1,6 +1,6 @@
 # SPEC 02 — Niveles progresivos
 
-> **Estado:** Aprobado
+> **Estado:** Implementado
 > **Depende de:** SPEC 01
 > **Fecha:** 2026-10-19
 > **Objetivo:** Al limpiar todos los bloques destructibles se avanza a un nivel nuevo, hasta 5 niveles, con más bloques, bloques `gray` resistentes y disposiciones distintas.

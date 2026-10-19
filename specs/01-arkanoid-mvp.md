@@ -1,6 +1,6 @@
 # SPEC 01 — MVP jugable de Arkanoid
 
-> **Estado:** Aprobado
+> **Estado:** Implementado
 > **Depende de:** ninguna
 > **Fecha:** 2026-10-15
 > **Objetivo:** Crear un Arkanoid jugable (1 nivel, 3 vidas, puntaje) en HTML, CSS y JS sin dependencias, usando los assets existentes.
