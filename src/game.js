@@ -2,7 +2,7 @@ const canvas = document.getElementById('game');
 const ctx = canvas.getContext('2d');
 
 const state = {
-  mode: 'menu', // 'menu' | 'ready' | 'playing' | 'paused' | 'levelclear' | 'gameover' | 'won'
+  mode: 'menu', // 'menu' | 'ready' | 'playing' | 'paused' | 'options' | 'levelclear' | 'gameover' | 'won'
   score: 0,
   lives: CONFIG.LIVES,
   paddle: createPaddle(),
@@ -10,6 +10,7 @@ const state = {
   level: 0, // índice 0-based en LEVELS
   bricks: createBricks(0),
   explosions: [], // { x, y, w, h, color, t } con t en ms
+  menu: createMenu(), // { screen, index, from }
 };
 
 attachBall(state.ball, state.paddle);
@@ -54,6 +55,29 @@ function resetGame() {
   startGame(0);
 }
 
+function openMenu() {
+  state.menu = createMenu();
+  state.menu.from = state.mode;
+  state.mode = 'options';
+}
+
+function closeMenu() {
+  state.mode = state.menu.from;
+}
+
+// Menú en partida: Continuar / Reiniciar nivel / Seleccionar nivel.
+function updateOptions() {
+  const items = menuItems(state.menu, state.mode);
+  const action = updateMenuNav(state.menu, items.length);
+  if (action === 'back') {
+    closeMenu();
+  } else if (action === 'confirm') {
+    const item = items[state.menu.index];
+    if (item === 'Continuar') closeMenu();
+    else if (item === 'Reiniciar nivel') startGame(state.level);
+  }
+}
+
 // Carga el siguiente nivel; puntaje y vidas se conservan.
 function startNextLevel() {
   state.level++;
@@ -66,6 +90,11 @@ function startNextLevel() {
 function update(dt) {
   if (state.mode === 'menu') {
     if (pressed.has('Space')) state.mode = 'ready';
+    clearPressed();
+    return;
+  }
+  if (state.mode === 'options') {
+    updateOptions();
     clearPressed();
     return;
   }
@@ -83,6 +112,11 @@ function update(dt) {
       startNextLevel();
       state.mode = 'ready';
     }
+    clearPressed();
+    return;
+  }
+  if (pressed.has('Escape')) {
+    openMenu();
     clearPressed();
     return;
   }
@@ -186,6 +220,9 @@ function draw() {
   drawBall(ctx, state.ball);
   drawHud();
   drawStateText();
+  if (state.mode === 'options') {
+    drawMenuList(ctx, 'MENÚ', menuItems(state.menu, state.mode), state.menu.index, '↑↓ mover · Enter elegir · Esc cerrar');
+  }
 }
 
 function loop(time) {
