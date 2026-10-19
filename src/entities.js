@@ -27,10 +27,15 @@ function attachBall(ball, paddle) {
   ball.vy = 0;
 }
 
-function launchBall(ball) {
+// Rapidez de la bola en px/s para un nivel (0-based): +speedStep por nivel.
+function ballSpeed(level) {
+  return CONFIG.BALL.speed * (1 + CONFIG.BALL.speedStep * level);
+}
+
+function launchBall(ball, speed) {
   const angle = (20 * Math.PI) / 180; // desde la vertical, hacia la derecha
-  ball.vx = CONFIG.BALL.speed * Math.sin(angle);
-  ball.vy = -CONFIG.BALL.speed * Math.cos(angle);
+  ball.vx = speed * Math.sin(angle);
+  ball.vy = -speed * Math.cos(angle);
 }
 
 // Mueve la bola y rebota en paredes laterales y techo. Devuelve true si rebotó.
@@ -57,7 +62,7 @@ function updateBall(ball, dt) {
 
 // Rebote en la pala: el ángulo depende del punto de impacto (centro = vertical,
 // extremos = maxAngle) y la rapidez se mantiene constante. Devuelve true si rebotó.
-function collideBallPaddle(ball, paddle) {
+function collideBallPaddle(ball, paddle, speed) {
   const overlaps =
     ball.vy > 0 &&
     ball.x + ball.size > paddle.x &&
@@ -71,8 +76,8 @@ function collideBallPaddle(ball, paddle) {
   const offset = Math.max(-1, Math.min(1, (ballCenter - paddleCenter) / (paddle.w / 2)));
   const angle = (offset * CONFIG.BALL.maxAngle * Math.PI) / 180;
 
-  ball.vx = CONFIG.BALL.speed * Math.sin(angle);
-  ball.vy = -CONFIG.BALL.speed * Math.cos(angle);
+  ball.vx = speed * Math.sin(angle);
+  ball.vy = -speed * Math.cos(angle);
   ball.y = paddle.y - ball.size;
   return true;
 }

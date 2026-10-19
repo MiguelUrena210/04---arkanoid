@@ -94,12 +94,12 @@ function update(dt) {
   if (state.mode === 'ready') {
     attachBall(state.ball, state.paddle);
     if (pressed.has('Space')) {
-      launchBall(state.ball);
+      launchBall(state.ball, ballSpeed(state.level));
       state.mode = 'playing';
     }
   } else if (state.mode === 'playing') {
     const hitWall = updateBall(state.ball, dt);
-    const hitPaddle = collideBallPaddle(state.ball, state.paddle);
+    const hitPaddle = collideBallPaddle(state.ball, state.paddle, ballSpeed(state.level));
     const brick = collideBallBricks(state.ball, state.bricks);
     if (hitWall || hitPaddle || brick) playSound(bounceSound);
     if (brick && !brick.alive) {
