@@ -1,6 +1,6 @@
 # SPEC 03 — Menú de partida y velocidad por nivel
 
-> **Estado:** Borrador
+> **Estado:** Aprobado
 > **Depende de:** SPEC 01, SPEC 02
 > **Fecha:** 2026-10-19
 > **Objetivo:** Añadir un menú (Esc) para continuar, reiniciar el nivel o elegir cualquiera de los 5 niveles, con puntaje y vidas reiniciados, y hacer que la bola sea más rápida en cada nivel.
