@@ -7,7 +7,8 @@ const state = {
   lives: CONFIG.LIVES,
   paddle: createPaddle(),
   ball: createBall(),
-  bricks: createBricks(),
+  level: 0, // índice 0-based en LEVELS
+  bricks: createBricks(0),
   explosions: [], // { x, y, w, h, color, t } con t en ms
 };
 
@@ -40,7 +41,8 @@ let lastTime = 0;
 function resetGame() {
   state.score = 0;
   state.lives = CONFIG.LIVES;
-  state.bricks = createBricks();
+  state.level = 0;
+  state.bricks = createBricks(state.level);
   state.paddle = createPaddle();
   state.explosions = [];
   attachBall(state.ball, state.paddle);

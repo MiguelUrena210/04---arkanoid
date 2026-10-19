@@ -77,21 +77,38 @@ function collideBallPaddle(ball, paddle) {
   return true;
 }
 
-function createBricks() {
-  const { cols, rows, w, h, gap, offsetX, offsetY, colors } = CONFIG.BRICKS;
+// Carácter del mapa -> { color, hp }. Cualquier otro carácter es un hueco.
+const BRICK_CHARS = {
+  r: { color: 'red', hp: 1 },
+  c: { color: 'cyan', hp: 1 },
+  g: { color: 'green', hp: 1 },
+  m: { color: 'magenta', hp: 1 },
+  y: { color: 'yellow', hp: 1 },
+  h: { color: 'hotpink', hp: 1 },
+  2: { color: 'gray', hp: 2 },
+  3: { color: 'gray', hp: 3 },
+};
+
+// Construye los bloques desde el mapa de LEVELS[level].
+function createBricks(level) {
+  const { cols, maxRows, w, h, gap, offsetX, offsetY } = CONFIG.BRICKS;
   const bricks = [];
-  for (let r = 0; r < rows; r++) {
-    for (let c = 0; c < cols; c++) {
+  LEVELS[level].map.slice(0, maxRows).forEach((row, r) => {
+    for (let c = 0; c < Math.min(row.length, cols); c++) {
+      const kind = BRICK_CHARS[row[c]];
+      if (!kind) continue;
       bricks.push({
         x: offsetX + c * (w + gap),
         y: offsetY + r * (h + gap),
         w,
         h,
-        color: colors[r],
+        color: kind.color,
         alive: true,
+        hp: kind.hp,
+        maxHp: kind.hp,
       });
     }
-  }
+  });
   return bricks;
 }
 
